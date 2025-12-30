@@ -2,7 +2,7 @@
 
 A simple and clean To-Do List application built using pure Frontend technologies.
 
-## 🚀 Features
+##  Features
 - Add new tasks
 - Delete tasks
 - Mark tasks as completed
@@ -10,17 +10,14 @@ A simple and clean To-Do List application built using pure Frontend technologies
 - Save tasks using Local Storage
 - Responsive and clean UI
 
-## 🛠 Technologies Used
+##  Technologies Used
 - HTML
 - CSS
 - JavaScript (DOM Manipulation)
 - Local Storage
 
-## 🌐 Live Demo
-👉 [View Live Demo](https://deemaa-hub.github.io/simple-todo-app/)
+##  Live Demo
+ [View Live Demo](https://deemaa-hub.github.io/simple-todo-app/)
 
-## 📂 GitHub Repository
-👉 [GitHub Repo](https://github.com/deemaa-hub/simple-todo-app)
-
-## ✨ Author
+##  Author
 Frontend Developer

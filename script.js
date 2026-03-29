@@ -1,98 +1,72 @@
-const taskInput = document.getElementById("taskInput");
-const addTaskBtn = document.getElementById("addTaskBtn");
-const taskList = document.getElementById("taskList");
-const filterButtons = document.querySelectorAll(".filters button");
+const taskInput = document.getElementById('taskInput');
+const addBtn = document.getElementById('addBtn');
+const taskList = document.getElementById('taskList');
 
-document.addEventListener("DOMContentLoaded", loadTasks);
+let tasks = JSON.parse(localStorage.getItem('todo_list')) || [];
+let currentTab = 'all';
 
-addTaskBtn.addEventListener("click", addTask);
+function addNewTask() {
+    const text = taskInput.value.trim();
+    if (text) {
+        tasks.push({ id: Date.now(), text: text, done: false });
+        taskInput.value = '';
+        updateUI();
+    }
+}
 
-taskInput.addEventListener("keypress", e => {
-    if (e.key === "Enter") addTask();
+addBtn.onclick = addNewTask;
+
+taskInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        addNewTask();
+    }
 });
 
-// Add task
-function addTask() {
-    const text = taskInput.value.trim();
-    if (text === "") return;
+function updateUI() {
+    localStorage.setItem('todo_list', JSON.stringify(tasks));
+    taskList.innerHTML = '';
 
-    const task = { text, completed: false };
-    saveTask(task);
-    renderTasks("all");
+    const filtered = tasks.filter(t => {
+        if (currentTab === 'active') return !t.done;
+        if (currentTab === 'completed') return t.done;
+        return true;
+    });
 
-    taskInput.value = "";
-    taskInput.focus();
-}
+    filtered.forEach(t => {
+        const li = document.createElement('li');
+        if (t.done) li.className = 'completed-item';
 
-// Save to localStorage
-function saveTask(task) {
-    const tasks = getTasks();
-    tasks.push(task);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
-
-function getTasks() {
-    return localStorage.getItem("tasks")
-        ? JSON.parse(localStorage.getItem("tasks"))
-        : [];
-}
-
-// Load tasks
-function loadTasks() {
-    renderTasks("all");
-}
-
-// Render tasks with filter
-function renderTasks(filter) {
-    taskList.innerHTML = "";
-    const tasks = getTasks();
-
-    tasks.forEach((task, index) => {
-        if (
-            filter === "completed" && !task.completed ||
-            filter === "active" && task.completed
-        ) return;
-
-        const li = document.createElement("li");
-        li.textContent = task.text;
-
-        if (task.completed) li.classList.add("completed");
-
-        li.addEventListener("click", () => {
-            task.completed = !task.completed;
-            updateTasks(tasks);
-            renderTasks(filter);
-        });
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Delete";
-        deleteBtn.className = "delete-btn";
-
-        deleteBtn.addEventListener("click", e => {
-            e.stopPropagation();
-            tasks.splice(index, 1);
-            updateTasks(tasks);
-            renderTasks(filter);
-        });
-
-        li.appendChild(deleteBtn);
+        li.innerHTML = `
+            <span class="task-text">${t.text}</span>
+            <div class="actions">
+                <button class="btn-done" onclick="toggle(${t.id})">${t.done ? 'Undo' : 'Done'}</button>
+                <button class="btn-del" onclick="remove(${t.id})">Delete</button>
+            </div>
+        `;
         taskList.appendChild(li);
     });
 }
 
-// Update localStorage
-function updateTasks(tasks) {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+window.toggle = (id) => {
+    tasks = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+    updateUI();
+};
 
-// Filter buttons
-filterButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        filterButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        renderTasks(btn.dataset.filter);
-    });
+window.remove = (id) => {
+    tasks = tasks.filter(t => t.id !== id);
+    updateUI();
+};
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.onclick = (e) => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        currentTab = e.target.innerText.toLowerCase();
+        updateUI();
+    };
 });
+
+updateUI();
 
 
 
